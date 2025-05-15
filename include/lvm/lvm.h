@@ -93,48 +93,96 @@ static inline void lvmstep_str_opcode(struct lvmctx *vm, int *instr_idx)
 
 	if(cmp_str("nop", lvmopcode_map, indice)){  }
 	else if (cmp_str("int", lvmopcode_map, indice)){  /* unimplemented */ }
-	else if (cmp_str("mov", lvmopcode_map, indice)){  *args[0] = *args[1]; }
-	else if (cmp_str("push", lvmopcode_map, indice)){  lvmstack_push(vm->mem, args[0]); }
-	else if (cmp_str("pop", lvmopcode_map, indice)){  lvmstack_pop(vm->mem, args[0]); }
-	else if (cmp_str("pushf", lvmopcode_map, indice)){  lvmstack_push(vm->mem, &vm->mem->FLAGS); }
-	else if (cmp_str("popf", lvmopcode_map, indice)){  lvmstack_pop(vm->mem, args[0]); }
-	else if (cmp_str("inc", lvmopcode_map, indice)){  ++(*args[0]); }
-	else if (cmp_str("dec", lvmopcode_map, indice)){  --(*args[0]); }
-	else if (cmp_str("add", lvmopcode_map, indice)){  *args[0] += *args[1]; }
-	else if (cmp_str("sub", lvmopcode_map, indice)){  *args[0] -= *args[1]; }
-	else if (cmp_str("mul", lvmopcode_map, indice)){  *args[0] *= *args[1]; }
-	else if (cmp_str("div", lvmopcode_map, indice)){  *args[0] /= *args[1]; }
-	else if (cmp_str("mod", lvmopcode_map, indice)){  vm->mem->remainder = *args[0] % *args[1]; }
-	else if (cmp_str("rem", lvmopcode_map, indice)){  *args[0] = vm->mem->remainder; }
-	else if (cmp_str("not", lvmopcode_map, indice)){  *args[0] = ~(*args[0]); }
-	else if (cmp_str("xor", lvmopcode_map, indice)){  *args[0] ^= *args[1];  }
-	else if (cmp_str("or", lvmopcode_map, indice)){ *args[0] |= *args[1];   }
-	else if (cmp_str("and", lvmopcode_map, indice)){ *args[0] &= *args[1];   }
-	else if (cmp_str("shl", lvmopcode_map, indice)){ *args[0] <<= *args[1];  }
-	else if (cmp_str("shr", lvmopcode_map, indice)){ *args[0] >>= *args[1];  }
-	else if (cmp_str("cmp", lvmopcode_map, indice)){ vm->mem->FLAGS = ((*args[0] == *args[1]) | (*args[0] > *args[1]) << 1); }
-	else if (cmp_str("call", lvmopcode_map, indice)){ lvmstack_push(vm->mem, instr_idx); }
-	else if(cmp_str("jmp", lvmopcode_map, indice)){ *instr_idx = *args[0] - 1; }
-	else if (cmp_str("ret", lvmopcode_map, indice)){ lvmstack_pop(vm->mem, instr_idx); }
+	else if (cmp_str("mov", lvmopcode_map, indice)){
+		*args[0] = *args[1];
+	}
+	else if (cmp_str("push", lvmopcode_map, indice)){
+		lvmstack_push(vm->mem, args[0]);
+	}
+	else if (cmp_str("pop", lvmopcode_map, indice)){
+		lvmstack_pop(vm->mem, args[0]);
+	}
+	else if (cmp_str("pushf", lvmopcode_map, indice)){
+		lvmstack_push(vm->mem, &vm->mem->FLAGS);
+	}
+	else if (cmp_str("popf", lvmopcode_map, indice)){
+		lvmstack_pop(vm->mem, args[0]);
+	}
+	else if (cmp_str("inc", lvmopcode_map, indice)){
+		++(*args[0]);
+	}
+	else if (cmp_str("dec", lvmopcode_map, indice)){
+		--(*args[0]);
+	}
+	else if (cmp_str("add", lvmopcode_map, indice)){
+		*args[0] += *args[1];
+	}
+	else if (cmp_str("sub", lvmopcode_map, indice)){
+		*args[0] -= *args[1];
+	}
+	else if (cmp_str("mul", lvmopcode_map, indice)){
+		*args[0] *= *args[1];
+	}
+	else if (cmp_str("div", lvmopcode_map, indice)){
+		*args[0] /= *args[1];
+	}
+	else if (cmp_str("mod", lvmopcode_map, indice)){
+		vm->mem->remainder = *args[0] % *args[1];
+	}
+	else if (cmp_str("rem", lvmopcode_map, indice)){
+		*args[0] = vm->mem->remainder;
+	}
+	else if (cmp_str("not", lvmopcode_map, indice)){
+		*args[0] = ~(*args[0]);
+	}
+	else if (cmp_str("xor", lvmopcode_map, indice)){
+		*args[0] ^= *args[1];
+	}
+	else if (cmp_str("or", lvmopcode_map, indice)){
+		*args[0] |= *args[1];
+	}
+	else if (cmp_str("and", lvmopcode_map, indice)){
+		*args[0] &= *args[1];
+	}
+	else if (cmp_str("shl", lvmopcode_map, indice)){
+		*args[0] <<= *args[1];
+	}
+	else if (cmp_str("shr", lvmopcode_map, indice)){
+		*args[0] >>= *args[1];
+	}
+	else if (cmp_str("cmp", lvmopcode_map, indice)){
+		vm->mem->FLAGS = ((*args[0] == *args[1]) | (*args[0] > *args[1]) << 1);
+	}
+	else if (cmp_str("call", lvmopcode_map, indice)){
+		lvmstack_push(vm->mem, instr_idx);
+	}
+	else if(cmp_str("jmp", lvmopcode_map, indice)){
+		*instr_idx = *args[0] - 1;
+	}
+	else if (cmp_str("ret", lvmopcode_map, indice)){
+		lvmstack_pop(vm->mem, instr_idx);
+	}
 	else if (cmp_str("je", lvmopcode_map, indice)){
-	*instr_idx = (vm->mem->FLAGS & 0x1)
-		? *args[0] - 1 : *instr_idx; }
+		*instr_idx = (vm->mem->FLAGS & 0x1) ? *args[0] - 1 : *instr_idx;
+	}
 	else if (cmp_str("jne", lvmopcode_map, indice)){
-	*instr_idx = (!(vm->mem->FLAGS & 0x1))
-		? *args[0] - 1 : *instr_idx; }
+		*instr_idx = (!(vm->mem->FLAGS & 0x1)) ? *args[0] - 1 : *instr_idx;
+	}
 	else if (cmp_str("jg", lvmopcode_map, indice)){
-	*instr_idx = (vm->mem->FLAGS & 0x2)
-		? *args[0] - 1 : *instr_idx; }
+		*instr_idx = (vm->mem->FLAGS & 0x2) ? *args[0] - 1 : *instr_idx;
+	}
 	else if (cmp_str("jge", lvmopcode_map, indice)){
-	*instr_idx = (vm->mem->FLAGS & 0x3)
-		? *args[0] - 1 : *instr_idx; }
+		*instr_idx = (vm->mem->FLAGS & 0x3) ? *args[0] - 1 : *instr_idx;
+	}
 	else if (cmp_str("jl", lvmopcode_map, indice)){
-	*instr_idx = (!(vm->mem->FLAGS & 0x3))
-		? *args[0] - 1 : *instr_idx; }
+		*instr_idx = (!(vm->mem->FLAGS & 0x3)) ? *args[0] - 1 : *instr_idx;
+	}
 	else if (cmp_str("jle", lvmopcode_map, indice)){
-	*instr_idx = (!(vm->mem->FLAGS & 0x2))
-		? *args[0] - 1 : *instr_idx; }
-	else if (cmp_str("prn", lvmopcode_map, indice)){ printf("%i\n", *args[0]);  }
+		*instr_idx = (!(vm->mem->FLAGS & 0x2)) ? *args[0] - 1 : *instr_idx;
+	}
+	else if (cmp_str("prn", lvmopcode_map, indice)){
+		printf("%i\n", *args[0]);
+	}
 }
 
 #endif

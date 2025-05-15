@@ -73,9 +73,10 @@ void lvmvm_run(struct lvmctx *vm)
 	int *instr_idx = &vm->mem->registers[0x8].i32;
 	*instr_idx = vm->prog->start;
 
-	for (; vm->prog->instr[*instr_idx] != -0x1; ++(*instr_idx))
+	for (; vm->prog->instr[*instr_idx] != -0x1; ++(*instr_idx)){
 		// lvmstep(vm, instr_idx);
 		lvmstep_str_opcode(vm, instr_idx);
+	}
 }
 
 

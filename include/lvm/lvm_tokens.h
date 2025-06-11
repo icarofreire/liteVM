@@ -6,6 +6,7 @@
 
 extern const char *lvmopcode_map[];
 
-extern const char *lvmregister_map[];
+extern const char *lvmregister32_map[];
+extern const char *lvmregister64_map[];
 
 #endif

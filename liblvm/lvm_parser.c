@@ -4,22 +4,83 @@
 #include <lvm/lvm_tokens.h>
 
 const char *lvmopcode_map[] = {
-	"nop", "int", "mov",
-	"push", "pop", "pushf", "popf",
-	"inc", "dec", "add", "sub", "mul", "div", "mod", "rem",
-	"not", "xor", "or", "and", "shl", "shr",
-	"cmp", "jmp", "call", "ret",
-	"je", "jne", "jg", "jge", "jl", "jle",
-	"prn", 0
+"nop",
+"int",
+"mov",
+"push",
+"pop",
+"pushf",
+"popf",
+"inc",
+"dec",
+"add",
+"sub",
+"mul",
+"div",
+"mod",
+"rem",
+"not",
+"xor",
+"or",
+"and",
+"shl",
+"shr",
+"cmp",
+"jmp",
+"call",
+"ret",
+"je",
+"jne",
+"jg",
+"jge",
+"jl",
+"jle",
+"prn",
+0
 };
 
-const char *lvmregister_map[] = {
-	"eax", "ebx", "ecx", "edx",
-	"esi", "edi", "esp", "ebp",
-	"eip",
-	"r08", "r09", "r10", "r11",
-	"r12", "r13", "r14", "r15", 0};
+/*\/ 32 bits; */
+const char *lvmregister32_map[] = {
+"eax",
+"ebx",
+"ecx",
+"edx",
+"esi",
+"edi",
+"esp",
+"ebp",
+"eip",
+"r08d",
+"r09d",
+"r10d",
+"r11d",
+"r12d",
+"r13d",
+"r14d",
+"r15d",
+0
+};
 
+/*\/ 64 bits; */
+const char *lvmregister64_map[] = {
+"rax",
+"rbx",
+"rcx",
+"rdx",
+"rsi",
+"idi",
+"rsp",
+"rbp",
+"r08",
+"r09",
+"r10",
+"r11",
+"r12",
+"r13",
+"r14",
+"r15",
+0
+};
 
 static int *token_to_register(const char *token, struct lvmmem *mem);
 static int instr_to_opcode(const char *instr);
@@ -233,10 +294,15 @@ int lvmparse_program(
 
 int *token_to_register(const char *token, struct lvmmem *mem)
 {
-	for (int i = 0; lvmregister_map[i]; i++) {
-		if (strcmp(token, lvmregister_map[i]) == 0)
+	for (int i = 0; lvmregister32_map[i]; i++) {
+		if (strcmp(token, lvmregister32_map[i]) == 0)
 			return &mem->registers[i].i32;
 	}
+
+	// for (int i = 0; lvmregister64_map[i]; i++) {
+	// 	if (strcmp(token, lvmregister64_map[i]) == 0)
+	// 		return &mem->registers[i].i64;
+	// }
 
 	return NULL;
 }

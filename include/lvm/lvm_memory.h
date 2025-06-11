@@ -10,6 +10,10 @@ union lvmreg_u {
 	int32_t i32;
 	int32_t *i32_ptr;
 
+	/**\/ provendo capacidade para operações em 64 bits; */
+	int64_t i64;
+	int64_t *i64_ptr;
+
 	union {
 		int16_t h;
 		int16_t l;

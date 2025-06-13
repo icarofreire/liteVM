@@ -48,10 +48,10 @@ void tdb_shell(struct lvmctx *vm)
 				   else { retcode = tdb_run(vm, breakpoints, num_breakpoints); running = 1; } break;
 			case  0x2: breakpoints = realloc(breakpoints, sizeof(struct tdb_breakpoint) * ++num_breakpoints);
 				   breakpoints[num_breakpoints - 1].address = lvmparse_value(tokens[1]); break;
-			case  0x3: lvmstep(vm, &vm->mem->registers[0x8].i32);
+			case  0x3: //lvmstep(vm, &vm->mem->registers[0x8].i32);
 				   vm->mem->registers[0x8].i32++;
 				   printf("Advancing instruction pointer to %i\n", vm->mem->registers[0x8].i32); break;
-			case  0x4: lvmstep(vm, &vm->mem->registers[0x8].i32);
+			case  0x4: //lvmstep(vm, &vm->mem->registers[0x8].i32);
 				   vm->mem->registers[0x8].i32++;
 				   retcode = tdb_run(vm, breakpoints, num_breakpoints); break;
 		};
@@ -70,7 +70,7 @@ int tdb_run(struct lvmctx* vm, struct tdb_breakpoint* breakpoints, int num_break
 	for(int *instr_idx = &vm->mem->registers[0x8].i32; vm->prog->instr[*instr_idx] != -0x1; ++(*instr_idx))
 	{
 		for(int i = 0; i < num_breakpoints; i++) if(breakpoints[i].address == *instr_idx) return 1; /* Breakpoint hit */
-		lvmstep(vm, instr_idx);
+		// lvmstep(vm, instr_idx);
 	}
 
 	return 0;

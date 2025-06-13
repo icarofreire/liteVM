@@ -2,6 +2,8 @@
 #include <lvm/lvm_file.h>
 #include <lvm/lvm_lexer.h>
 #include <lvm/lvm_tokens.h>
+#include <lvm/dll.h>
+#include <limits.h>
 
 const char *lvmopcode_map[] = {
 "nop",
@@ -190,9 +192,19 @@ static int **lvmparse_args(
 			continue;
 		}
 
+		long long value = lvmparse_value(instr_tokens[*instr_place+1 + i]);
+		if(value < INT_MAX){
+			args[i] = lvmadd_value(vm, (int)value);
+		}else{
+			struct NodeDLL* node64 = createNodeDLL(i, value);
+			if(node64){
+				vm->node64 = node64;
+			}
+		}
+
 		/* Fuck it, parse it as a value */
-		args[i] = lvmadd_value(
-			vm, lvmparse_value(instr_tokens[*instr_place+1 + i]));
+		// args[i] = lvmadd_value(
+		// 	vm, lvmparse_value(instr_tokens[*instr_place+1 + i]));
 	}
 
 	return args;
@@ -328,7 +340,7 @@ int *lvmadd_value(struct lvmctx *vm, const int val)
 	return p->values[p->num_values++];
 }
 
-int lvmparse_value(const char *str)
+long long lvmparse_value(const char *str)
 {
 	char *delimiter = strchr(str, '|'), base = 0;
 
@@ -348,5 +360,5 @@ int lvmparse_value(const char *str)
 		}
 	}
 
-	return strtoul(str, NULL, base);
+	return strtoll(str, NULL, base);
 }

@@ -8,6 +8,6 @@ int lvmparse_labels(struct lvmctx *vm, const char ***tokens);
 int lvmparse_program(struct lvmctx *vm, const char ***tokens);
 
 int *lvmadd_value(struct lvmctx *vm, const int val);
-int lvmparse_value(const char *str);
+long long lvmparse_value(const char *str);
 
 #endif

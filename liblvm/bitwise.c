@@ -9,6 +9,7 @@ https://graphics.stanford.edu/~seander/bithacks.html
 */
 
 #include <inttypes.h>
+#include <limits.h>
 
 /*
 int bit_is_set(int x, int n);
@@ -95,6 +96,29 @@ int toggle_nth_bit(int x, int n){
 int64_t toggle_nth_bit64(int64_t x, int n){
     int64_t y = x ^ (1<<n);
     return y;
+}
+
+/*\/ Finding the Minimum Bits Required for a Value;
+If you need to find the minimum number of bits required to represent a
+specific value (rather than the size of the data type), you can use a
+loop with bit shifting or the logarithm method.*/
+int bit_length(long long number) {
+    int bits = 0;
+    while (number) {
+        number >>= 1;
+        bits++;
+    }
+    return bits;
+}
+
+/*\/ obter o numero de bits tamanho de um numero; */
+int nbits_int(long long value){
+	if(value <= SCHAR_MAX) return 8;
+	if(value <= SHRT_MAX) return 16;
+	if(value <= INT_MAX) return 32;
+	if(value <= LONG_MAX) return 64;
+	if(value <= LLONG_MAX) return 64;
+	return 0;
 }
 
 #endif

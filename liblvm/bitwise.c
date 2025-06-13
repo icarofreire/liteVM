@@ -1,5 +1,3 @@
-#ifndef BITWISE_H_
-#define BITWISE_H_
 
 /* Lib bitwise; */
 
@@ -10,6 +8,7 @@ https://graphics.stanford.edu/~seander/bithacks.html
 
 #include <inttypes.h>
 #include <limits.h>
+#include <lvm/bitwise.h>
 
 /*
 int bit_is_set(int x, int n);
@@ -42,6 +41,15 @@ int bit_is_set(int x, int n){
     return -1;
 }
 
+int bit_is_set_dir(int x, int n){
+    if (x & (n>>1)) {
+        // n-th bit is set
+        return 1;
+    }
+    // n-th bit is not set
+    return -1;
+}
+
 // if the n-th bit is set.
 int bit_is_set64(int64_t x, int n){
     if (x & (1<<n)) {
@@ -55,6 +63,11 @@ int bit_is_set64(int64_t x, int n){
 // Set the n-th bit.
 int set_nth_bit(int x, int n){
     int y = x | (1<<n);
+    return y;
+}
+
+int set_nth_bit_dir(int x, int n){
+    int y = x | (n>>1);
     return y;
 }
 
@@ -80,6 +93,11 @@ int unset_nth_bit(int x, int n){
     return y;
 }
 
+int unset_nth_bit_dir(int x, int n){
+    int y = x & ~(n>>1);
+    return y;
+}
+
 // Unset the n-th bit.
 int64_t unset_nth_bit64(int64_t x, int n){
     int64_t y = x & ~(1<<n);
@@ -89,6 +107,11 @@ int64_t unset_nth_bit64(int64_t x, int n){
 // Toggle the n-th bit.
 int toggle_nth_bit(int x, int n){
     int y = x ^ (1<<n);
+    return y;
+}
+
+int toggle_nth_bit_dir(int x, int n){
+    int y = x ^ (n>>1);
     return y;
 }
 
@@ -120,5 +143,3 @@ int nbits_int(long long value){
 	if(value <= LLONG_MAX) return 64;
 	return 0;
 }
-
-#endif

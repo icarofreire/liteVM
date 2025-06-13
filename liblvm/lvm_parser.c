@@ -41,8 +41,29 @@ const char *lvmopcode_map[] = {
 0
 };
 
+/*\/ 64 bits; */
+const char *register64_map[] = {
+"rax",
+"rbx",
+"rcx",
+"rdx",
+"rsi",
+"idi",
+"rsp",
+"rbp",
+"r08",
+"r09",
+"r10",
+"r11",
+"r12",
+"r13",
+"r14",
+"r15",
+0
+};
+
 /*\/ 32 bits; */
-const char *lvmregister32_map[] = {
+const char *register32_map[] = {
 "eax",
 "ebx",
 "ecx",
@@ -63,24 +84,49 @@ const char *lvmregister32_map[] = {
 0
 };
 
-/*\/ 64 bits; */
-const char *lvmregister64_map[] = {
-"rax",
-"rbx",
-"rcx",
-"rdx",
-"rsi",
-"idi",
-"rsp",
-"rbp",
-"r08",
-"r09",
-"r10",
-"r11",
-"r12",
-"r13",
-"r14",
-"r15",
+/*\/ 16 bits; */
+const char *registers16_map[] = {
+"ax",
+"bx",
+"cx",
+"dx",
+"si",
+"di",
+"sp",
+"bp",
+"r8w",
+"r9w",
+"r10w",
+"r11w",
+"r12w",
+"r13w",
+"r14w",
+"r15w",
+0
+};
+
+/*\/ 8 bits; */
+const char *registers8_map[] = {
+"ah",
+"al",
+"bh",
+"bl",
+"ch",
+"cl",
+"dh",
+"dl",
+"sil",
+"dil",
+"spl",
+"bpl",
+"r8b",
+"r9b",
+"r10b",
+"r11b",
+"r12b",
+"r13b",
+"r14b",
+"r15b",
 0
 };
 
@@ -306,13 +352,13 @@ int lvmparse_program(
 
 int *token_to_register(const char *token, struct lvmmem *mem)
 {
-	for (int i = 0; lvmregister32_map[i]; i++) {
-		if (strcmp(token, lvmregister32_map[i]) == 0)
+	for (int i = 0; register32_map[i]; i++) {
+		if (strcmp(token, register32_map[i]) == 0)
 			return &mem->registers[i].i32;
 	}
 
-	// for (int i = 0; lvmregister64_map[i]; i++) {
-	// 	if (strcmp(token, lvmregister64_map[i]) == 0)
+	// for (int i = 0; register64_map[i]; i++) {
+	// 	if (strcmp(token, register64_map[i]) == 0)
 	// 		return &mem->registers[i].i64;
 	// }
 

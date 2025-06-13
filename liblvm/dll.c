@@ -223,6 +223,16 @@ void printList(struct NodeDLL *head) {
     printf("\n");
 }
 
+void printList64(struct NodeDLL *head) {
+    // printf("*** print Doubly Linked List: ***\n");
+    struct NodeDLL *curr = head;int p=0;
+    while (curr != NULL) {
+        printf("[%d: %lld] -> ", curr->data, (long long)curr->value);
+        curr = curr->next;p=1;
+    }
+    if(p>0)printf("\n");
+}
+
 // Function to traverse the doubly linked list 
 // in forward direction
 void forwardTraversal(struct NodeDLL* head) {

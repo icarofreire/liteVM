@@ -77,6 +77,11 @@ void lvmvm_run(struct lvmctx *vm)
 		// lvmstep(vm, instr_idx);
 		lvmstep_str_opcode(vm, instr_idx);
 	}
+	/*\/ deletar todos os nós de dados de 64bits; */
+	struct NodeDLL* head = getHead(vm->node64);
+	if(head){
+		deleteAllNodes(&head);
+	}
 }
 
 

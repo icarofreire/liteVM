@@ -15,6 +15,32 @@ struct NodeDLL {
     /*\/ valor associado ao nó; */
     int64_t value;
 
+    /*
+    ;RFLAGS Register; EFLAGS and RFLAGS registers (in modern x86-64);
+    Bit(s) : Label : Description
+    0 : CF : Carry Flag
+    1 : 1 : Reserved
+    2 : PF : Parity Flag
+    3 : 0 : Reserved
+    4 : AF : Auxiliary Carry Flag
+    5 : 0 : Reserved
+    6 : ZF : Zero Flag
+    7 : SF : Sign Flag
+    8 : TF : Trap Flag
+    9 : IF : Interrupt Enable Flag
+    10 : DF : Direction Flag
+    11 : OF : Overflow Flag
+    12-13 : IOPL : I/O Privilege Level
+    14 : NT : Nested Task
+    15 : 0 : Reserved
+    16 : RF : Resume Flag
+    17 : VM : Virtual-8086 Mode
+    18 : AC : Alignment Check / Access Control
+    19 : VIF : Virtual Interrupt Flag
+    20 : VIP : Virtual Interrupt Pending
+    21 : ID : ID Flag
+    22-63 : 0 : Reserved
+    */
     /*\/ FLAGS register; */
     int64_t FLAGS;
 
@@ -33,6 +59,7 @@ struct NodeDLL * delPos(struct NodeDLL * head, int pos);
 void deleteNode(struct NodeDLL** head_ref, struct NodeDLL* del);
 void deleteAllNodes(struct NodeDLL** head_ref);
 void printList(struct NodeDLL *head);
+void printList64(struct NodeDLL *head);
 void forwardTraversal(struct NodeDLL* head);
 void backwardTraversal(struct NodeDLL* tail);
 struct NodeDLL* getHead(struct NodeDLL* curr);

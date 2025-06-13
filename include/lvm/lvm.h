@@ -100,8 +100,9 @@ static inline void lvmstep_str_opcode(struct lvmctx *vm, int *instr_idx)
 	struct NodeDLL* nodeValue = searchNodeByKey(vm->node64, 0);
 	if(nodeValue){
 		int64_t v64 = nodeValue->value;
-		printf("%lld\n", (long long)v64);
+		printf("arg: [%lld]\n", (long long)v64);
 	}
+	// printList64(vm->node64);
 
 	if(cmp_str("nop", lvmopcode_map, indice)){  }
 	else if (cmp_str("int", lvmopcode_map, indice)){  /* unimplemented */ }

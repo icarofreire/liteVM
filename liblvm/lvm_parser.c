@@ -132,6 +132,7 @@ const char *registers8_map[] = {
 
 static int *token_to_register(const char *token, struct lvmmem *mem);
 static int instr_to_opcode(const char *instr);
+void append_key_value64_in_tail_dll(struct lvmctx *vm, int key, long long value);
 
 int lvmparse_labels(struct lvmctx *vm, const char ***tokens)
 {
@@ -226,13 +227,10 @@ static int **lvmparse_args(
 				if(value < INT_MAX){
 					args[i] = &((int *)vm->mem->mem_space)[value];
 				}else{
-					int key = i;
-					struct NodeDLL* node64 = createNodeDLL(key, value);
-					if(node64){
-						/*\/ armazenar a key(32bits) do valor de 64bits para posterior recuperação; */
-						args[i] = &key;
-						vm->node64 = node64;
-					}
+					int key = *instr_place;
+					append_key_value64_in_tail_dll(vm, key, value);
+					/*\/ armazenar a key(32bits) do valor de 64bits para posterior recuperação; */
+					args[i] = &key;
 				}
 
 				continue;
@@ -252,13 +250,10 @@ static int **lvmparse_args(
 		if(value < INT_MAX){
 			args[i] = lvmadd_value(vm, (int)value);
 		}else{
-			int key = i;
-			struct NodeDLL* node64 = createNodeDLL(key, value);
-			if(node64){
-				/*\/ armazenar a key(32bits) do valor de 64bits para posterior recuperação; */
-				args[i] = &key;
-				vm->node64 = node64;
-			}
+			int key = *instr_place;
+			append_key_value64_in_tail_dll(vm, key, value);
+			/*\/ armazenar a key(32bits) do valor de 64bits para posterior recuperação; */
+			args[i] = &key;
 		}
 
 		/* Fuck it, parse it as a value */
@@ -420,4 +415,20 @@ long long lvmparse_value(const char *str)
 	}
 
 	return strtoll(str, NULL, base);
+}
+
+/*\/ criar e adicioar un novo nó da dll, caso não exista um nó final,
+criar um nó principal e adicionar os dados; */
+void append_key_value64_in_tail_dll(struct lvmctx *vm, int key, long long value){
+
+	struct NodeDLL* tail = getTail(vm->node64);
+	if(tail == NULL){
+		struct NodeDLL* node64 = createNodeDLL(key, value);
+		if(node64){
+			/*\/ atribuir nó à estrutura da vm; */
+			vm->node64 = node64;
+		}
+	}else{
+		append(&tail, key, value);
+	}
 }

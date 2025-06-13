@@ -15,6 +15,12 @@ struct NodeDLL {
     /*\/ valor associado ao nó; */
     int64_t value;
 
+    /*\/ array com tamanhos de 64bits para serem armazenados
+    resultados de 64bits em eventuais operações, e armazenados
+    no próprio nó; */
+    int max_values_opr;
+    int64_t *values_opr;
+
     /*
     ;RFLAGS Register; EFLAGS and RFLAGS registers (in modern x86-64);
     Bit(s) : Label : Description

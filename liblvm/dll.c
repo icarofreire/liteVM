@@ -45,6 +45,14 @@ struct NodeDLL *createNodeDLL(int key, int64_t value) {
     new_node->data = key;
     new_node->value = value;
 
+    /*\/ array para armazenar valores de operações em 64bits no nó;
+    inicializar com valores negativos; */
+    new_node->max_values_opr = 10;
+    new_node->values_opr = (int64_t*)malloc(new_node->max_values_opr * sizeof(int64_t));
+    for(int i = 0; i < new_node->max_values_opr; i++){
+        new_node->values_opr[i] = -1;
+    }
+
     new_node->next = NULL;
     new_node->prev = NULL;
     return new_node;

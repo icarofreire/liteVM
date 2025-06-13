@@ -97,9 +97,9 @@ static inline void lvmstep_str_opcode(struct lvmctx *vm, int *instr_idx)
 	int indice = vm->prog->instr[*instr_idx];
 // printf(">> [%lld]: [%s] [%lld] [%lld]\n", (long long)*instr_idx, lvmopcode_map[indice], (long long)*args[0], (long long)*args[0] );
 
-	struct NodeDLL* nodeValue = searchNodeByKey(vm->node64, 0);
-	if(nodeValue){
-		int64_t v64 = nodeValue->value;
+	struct NodeDLL* node64 = searchNodeByKey(vm->node64, 0);
+	if(node64){
+		int64_t v64 = node64->value;
 		printf("arg: [%lld]\n", (long long)v64);
 	}
 	// printList64(vm->node64);
@@ -194,7 +194,11 @@ static inline void lvmstep_str_opcode(struct lvmctx *vm, int *instr_idx)
 		*instr_idx = (!(vm->mem->FLAGS & 0x2)) ? *args[0] - 1 : *instr_idx;
 	}
 	else if (cmp_str("prn", lvmopcode_map, indice)){
-		printf("%i\n", *args[0]);
+		if(node64){
+			printf("%lld", (long long)node64->value);
+		}else{
+			printf("%i\n", *args[0]);
+		}
 	}
 	// printf(">> [%lld]: [%s] [%lld] [%lld]\n", (long long)*instr_idx, lvmopcode_map[indice], (long long)*args[0], (long long)*args[0] );
 }

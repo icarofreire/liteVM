@@ -16,6 +16,7 @@
 struct lvmctx {
 	struct lvmprog *prog;
 	struct lvmmem *mem;
+	/*\/ estrutura para armazenar dados de operações de 64bits; */
 	struct NodeDLL* node64;
 };
 

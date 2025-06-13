@@ -221,9 +221,19 @@ static int **lvmparse_args(
 
 			if (end_symbol) {
 				*end_symbol = 0;
-				args[i] = &((int *)vm->mem->mem_space)[
-					lvmparse_value(instr_tokens[
-						*instr_place+1 + i] + 1)];
+
+				long long value = lvmparse_value(instr_tokens[*instr_place+1 + i] + 1);
+				if(value < INT_MAX){
+					args[i] = &((int *)vm->mem->mem_space)[value];
+				}else{
+					int key = i;
+					struct NodeDLL* node64 = createNodeDLL(key, value);
+					if(node64){
+						/*\/ armazenar a key(32bits) do valor de 64bits para posterior recuperação; */
+						args[i] = &key;
+						vm->node64 = node64;
+					}
+				}
 
 				continue;
 			}
@@ -242,8 +252,11 @@ static int **lvmparse_args(
 		if(value < INT_MAX){
 			args[i] = lvmadd_value(vm, (int)value);
 		}else{
-			struct NodeDLL* node64 = createNodeDLL(i, value);
+			int key = i;
+			struct NodeDLL* node64 = createNodeDLL(key, value);
 			if(node64){
+				/*\/ armazenar a key(32bits) do valor de 64bits para posterior recuperação; */
+				args[i] = &key;
 				vm->node64 = node64;
 			}
 		}

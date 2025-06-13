@@ -15,6 +15,9 @@ struct NodeDLL {
     /*\/ valor associado ao nó; */
     int64_t value;
 
+    /*\/ FLAGS register; */
+    int64_t FLAGS;
+
     struct NodeDLL *next;
     struct NodeDLL *prev;
 };

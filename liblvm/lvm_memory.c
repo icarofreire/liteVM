@@ -24,3 +24,17 @@ void lvmmem_destroy(struct lvmmem *m)
 	free(m->registers);
 	free(m);
 }
+
+/*\/ operações com flags; */
+void set_flag(struct lvmmem *mem, int flag){
+    mem->FLAGS[flag] = 1;
+}
+
+void unset_flag(struct lvmmem *mem, int flag){
+    mem->FLAGS[flag] = 0;
+}
+
+/** In C, zero is interpreted as false, and any non-zero value is interpreted as true. */
+int is_flag_set(struct lvmmem *mem, int flag){
+    return (mem->FLAGS[flag] == 1) ? (1) : (0);
+}

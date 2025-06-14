@@ -9,21 +9,23 @@
 
 static inline void lvmstack_create(struct lvmmem *mem, size_t size)
 {
-	mem->registers[0x7].i32_ptr =
-		((int32_t *)mem->mem_space) + (size / sizeof(int32_t));
-	mem->registers[0x6].i32_ptr = mem->registers[0x7].i32_ptr;
+	/*\/ base da stack zerada; */
+	mem->base_stack = 0;
 }
 
 static inline void lvmstack_push(struct lvmmem *mem, int *item)
 {
-	mem->registers[0x6].i32_ptr -= 1;
-	*mem->registers[0x6].i32_ptr = *item;
+	if(mem->base_stack < MAX_STACK_SIZE){
+		mem->stack[mem->base_stack] = *item;
+		mem->base_stack++;
+	}
 }
 
 static inline void lvmstack_pop(struct lvmmem *mem, int *dest)
 {
-	*dest = *mem->registers[0x6].i32_ptr;
-	mem->registers[0x6].i32_ptr += 1;
+	*dest = mem->stack[mem->base_stack];
+	mem->stack[mem->base_stack] = 0;
+	mem->base_stack--;
 }
 
 #endif

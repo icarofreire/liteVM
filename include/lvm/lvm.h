@@ -12,8 +12,6 @@
 #include "lvm_program.h"
 #include "lvm_tokens.h"
 #include "dll.h"
-#include "bitwise.h"
-#include "flags.h"
 
 struct lvmctx {
 	struct lvmprog *prog;
@@ -109,7 +107,11 @@ static inline void lvmstep_str_opcode(struct lvmctx *vm, int *instr_idx)
 	if(cmp_str("nop", lvmopcode_map, indice)){  }
 	else if (cmp_str("int", lvmopcode_map, indice)){  /* unimplemented */ }
 	else if (cmp_str("mov", lvmopcode_map, indice)){
-		*args[0] = *args[1];
+		if(node64_arg0 && node64_arg1){
+			node64_arg0->value = node64_arg1->value;
+		}else{
+			*args[0] = *args[1];
+		}
 	}
 	else if (cmp_str("push", lvmopcode_map, indice)){
 		lvmstack_push(vm->mem, args[0]);
@@ -118,7 +120,8 @@ static inline void lvmstep_str_opcode(struct lvmctx *vm, int *instr_idx)
 		lvmstack_pop(vm->mem, args[0]);
 	}
 	else if (cmp_str("pushf", lvmopcode_map, indice)){
-		lvmstack_push(vm->mem, &vm->mem->FLAGS);
+		// lvmstack_push(vm->mem, &vm->mem->FLAGS);
+		lvmstack_push(vm->mem, vm->mem->FLAGS);
 	}
 	else if (cmp_str("popf", lvmopcode_map, indice)){
 		lvmstack_pop(vm->mem, args[0]);
@@ -218,26 +221,26 @@ static inline void lvmstep_str_opcode(struct lvmctx *vm, int *instr_idx)
 			/*\/ verificar melhor; */
 			// vm->mem->FLAGS = ((node64_arg0->value == node64_arg1->value) | (node64_arg0->value > node64_arg1->value) << 1);
 			if(node64_arg0->value == node64_arg1->value){
-				vm->mem->FLAGS = set_flag(vm->mem->FLAGS, FLAG_ZF);
-				vm->mem->FLAGS = unset_flag(vm->mem->FLAGS, FLAG_CF);
+				set_flag(vm->mem, FLAG_ZF);
+				unset_flag(vm->mem, FLAG_CF);
 			}else if(node64_arg0->value < node64_arg1->value){
-				vm->mem->FLAGS = set_flag(vm->mem->FLAGS, FLAG_CF);
-				vm->mem->FLAGS = unset_flag(vm->mem->FLAGS, FLAG_ZF);
+				set_flag(vm->mem, FLAG_CF);
+				unset_flag(vm->mem, FLAG_ZF);
 			}else{
-				vm->mem->FLAGS = unset_flag(vm->mem->FLAGS, FLAG_ZF);
-				vm->mem->FLAGS = unset_flag(vm->mem->FLAGS, FLAG_CF);
+				unset_flag(vm->mem, FLAG_ZF);
+				unset_flag(vm->mem, FLAG_CF);
 			}
 		}else{
 			// vm->mem->FLAGS = ((*args[0] == *args[1]) | (*args[0] > *args[1]) << 1);
 			if(*args[0] == *args[1]){
-				vm->mem->FLAGS = set_flag(vm->mem->FLAGS, FLAG_ZF);
-				vm->mem->FLAGS = unset_flag(vm->mem->FLAGS, FLAG_CF);
+				set_flag(vm->mem, FLAG_ZF);
+				unset_flag(vm->mem, FLAG_CF);
 			}else if(*args[0] < *args[1]){
-				vm->mem->FLAGS = set_flag(vm->mem->FLAGS, FLAG_CF);
-				vm->mem->FLAGS = unset_flag(vm->mem->FLAGS, FLAG_ZF);
+				set_flag(vm->mem, FLAG_CF);
+				unset_flag(vm->mem, FLAG_ZF);
 			}else{
-				vm->mem->FLAGS = unset_flag(vm->mem->FLAGS, FLAG_ZF);
-				vm->mem->FLAGS = unset_flag(vm->mem->FLAGS, FLAG_CF);
+				unset_flag(vm->mem, FLAG_ZF);
+				unset_flag(vm->mem, FLAG_CF);
 			}
 		}
 	}
@@ -250,26 +253,109 @@ static inline void lvmstep_str_opcode(struct lvmctx *vm, int *instr_idx)
 	else if (cmp_str("ret", lvmopcode_map, indice)){
 		lvmstack_pop(vm->mem, instr_idx);
 	}
-	else if (cmp_str("je", lvmopcode_map, indice)){
-		*instr_idx = (vm->mem->FLAGS & 0x1) ? *args[0] - 1 : *instr_idx;
+	else if (
+		cmp_str("je", lvmopcode_map, indice) ||
+		cmp_str("jz", lvmopcode_map, indice) ||
+		cmp_str("jb", lvmopcode_map, indice) ||
+		cmp_str("jnae", lvmopcode_map, indice) ||
+		cmp_str("jc", lvmopcode_map, indice)
+	){
+		if(is_flag_set(vm->mem, FLAG_CF)){
+			*instr_idx = *args[0] - 1;
+		}
+
+		if(cmp_str("je", lvmopcode_map, indice) || cmp_str("jz", lvmopcode_map, indice)){
+			if(is_flag_set(vm->mem, FLAG_ZF)){
+				*instr_idx = *args[0] - 1;
+			}
+		}
 	}
-	else if (cmp_str("jne", lvmopcode_map, indice)){
-		*instr_idx = (!(vm->mem->FLAGS & 0x1)) ? *args[0] - 1 : *instr_idx;
-	}
-	else if (cmp_str("jg", lvmopcode_map, indice)){
-		*instr_idx = (vm->mem->FLAGS & 0x2) ? *args[0] - 1 : *instr_idx;
-	}
-	else if (cmp_str("jge", lvmopcode_map, indice)){
-		*instr_idx = (vm->mem->FLAGS & 0x3) ? *args[0] - 1 : *instr_idx;
-	}
-	else if (cmp_str("jl", lvmopcode_map, indice)){
-		// *instr_idx = (!(vm->mem->FLAGS & 0x3)) ? *args[0] - 1 : *instr_idx;
-		if(is_flag_set(vm->mem->FLAGS, FLAG_ZF) == -1 || is_flag_set(vm->mem->FLAGS, FLAG_CF) == 1){
+	else if (cmp_str("jbe", lvmopcode_map, indice) || cmp_str("jna", lvmopcode_map, indice)){
+		if(is_flag_set(vm->mem, FLAG_CF) || is_flag_set(vm->mem, FLAG_ZF)){
 			*instr_idx = *args[0] - 1;
 		}
 	}
-	else if (cmp_str("jle", lvmopcode_map, indice)){
-		*instr_idx = (!(vm->mem->FLAGS & 0x2)) ? *args[0] - 1 : *instr_idx;
+	else if (cmp_str("jne", lvmopcode_map, indice)){
+		// *instr_idx = (!(vm->mem->FLAGS & 0x1)) ? *args[0] - 1 : *instr_idx;
+		if(!is_flag_set(vm->mem, FLAG_ZF)){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jnz", lvmopcode_map, indice)){
+		// *instr_idx = (!(vm->mem->FLAGS & 0x1)) ? *args[0] - 1 : *instr_idx;
+		if(!is_flag_set(vm->mem, FLAG_ZF)){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jg", lvmopcode_map, indice) || cmp_str("jnle", lvmopcode_map, indice)){
+		// *instr_idx = (vm->mem->FLAGS & 0x2) ? *args[0] - 1 : *instr_idx;
+		if(!is_flag_set(vm->mem, FLAG_ZF) && vm->mem->FLAGS[FLAG_SF] == vm->mem->FLAGS[FLAG_OF]){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jge", lvmopcode_map, indice) || cmp_str("jnl", lvmopcode_map, indice)){
+		// *instr_idx = (vm->mem->FLAGS & 0x3) ? *args[0] - 1 : *instr_idx;
+		if(vm->mem->FLAGS[FLAG_SF] == vm->mem->FLAGS[FLAG_OF]){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jnge", lvmopcode_map, indice)){
+		// *instr_idx = (vm->mem->FLAGS & 0x3) ? *args[0] - 1 : *instr_idx;
+		if(vm->mem->FLAGS[FLAG_SF] != vm->mem->FLAGS[FLAG_OF]){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jl", lvmopcode_map, indice)){
+		// *instr_idx = (!(vm->mem->FLAGS & 0x3)) ? *args[0] - 1 : *instr_idx;
+		if(!is_flag_set(vm->mem, FLAG_ZF) || is_flag_set(vm->mem, FLAG_CF)){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jle", lvmopcode_map, indice) || cmp_str("jng", lvmopcode_map, indice)){
+		// *instr_idx = (!(vm->mem->FLAGS & 0x2)) ? *args[0] - 1 : *instr_idx;
+		if(is_flag_set(vm->mem, FLAG_ZF) || (vm->mem->FLAGS[FLAG_SF] != vm->mem->FLAGS[FLAG_OF])){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jnb", lvmopcode_map, indice) || cmp_str("jae", lvmopcode_map, indice) || cmp_str("jnc", lvmopcode_map, indice)){
+		if(!is_flag_set(vm->mem, FLAG_CF)){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jnbe", lvmopcode_map, indice) || cmp_str("ja", lvmopcode_map, indice)){
+		if(!is_flag_set(vm->mem, FLAG_CF) && !is_flag_set(vm->mem, FLAG_ZF)){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jno", lvmopcode_map, indice)){
+		if(!is_flag_set(vm->mem, FLAG_OF)){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jnp", lvmopcode_map, indice) || cmp_str("jpo", lvmopcode_map, indice)){
+		if(!is_flag_set(vm->mem, FLAG_PF)){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jns", lvmopcode_map, indice)){
+		if(!is_flag_set(vm->mem, FLAG_SF)){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jo", lvmopcode_map, indice)){
+		if(is_flag_set(vm->mem, FLAG_OF)){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("jp", lvmopcode_map, indice) || cmp_str("jpe", lvmopcode_map, indice)){
+		if(is_flag_set(vm->mem, FLAG_PF)){
+			*instr_idx = *args[0] - 1;
+		}
+	}
+	else if (cmp_str("js", lvmopcode_map, indice)){
+		if(is_flag_set(vm->mem, FLAG_SF)){
+			*instr_idx = *args[0] - 1;
+		}
 	}
 	else if (cmp_str("prn", lvmopcode_map, indice)){
 		if(node64_arg0){
